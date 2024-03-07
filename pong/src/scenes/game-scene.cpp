@@ -14,13 +14,28 @@ static const unsigned char PROGMEM DOTTED_LINE[] = {
     0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff,
     0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe,
     0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff,
-    0xff, 0xff, 0xfe, 0xfe};
+    0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe,
+    0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff,
+    0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe,
+    0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff,
+    0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe,
+    0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff,
+    0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe,
+    0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff,
+    0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe,
+    0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff,
+    0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe,
+    0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff,
+    0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe,
+    0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff,
+    0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe };
 
 const int SPACE = 15;
 
 GameScene::GameScene(SceneManager *sm, GameEntity *ge) : sceneManager(sm), gameEntities(ge)
 {
     type = GAME;
+    //display->fillScreen(ST7789_BLACK);
 }
 
 GameScene::~GameScene()
@@ -112,14 +127,16 @@ void GameScene::moveUsingAI(Paddle *paddle, bool godMode)
 void GameScene::render()
 {
     // Serial.println("GameRender");
-    drawBorder();
-    drawScore();
 
-    display->drawXBitmap(64, 0, DOTTED_LINE, 1, 64, SSD1306_WHITE);
 
     drawBall();
     drawPaddle(gameEntities->getPaddle1());
     drawPaddle(gameEntities->getPaddle2());
+
+    drawBorder();
+    drawScore();
+
+    display->drawXBitmap(160, 0, DOTTED_LINE, 1, 240, ST7789_WHITE);
 
     Scene::render();
 }
@@ -127,38 +144,51 @@ void GameScene::render()
 void GameScene::drawBorder()
 {
     // top line
-    display->drawFastHLine(displayProperties->topLeftX, displayProperties->topLeftY, displayProperties->width, SSD1306_WHITE);
+    display->drawFastHLine(displayProperties->topLeftX, displayProperties->topLeftY, displayProperties->width, ST7789_WHITE);
     // bottom line
-    display->drawFastHLine(displayProperties->bottomLeftX, displayProperties->bottomLeftY, displayProperties->width, SSD1306_WHITE);
+    display->drawFastHLine(displayProperties->bottomLeftX, displayProperties->bottomLeftY, displayProperties->width, ST7789_WHITE);
 }
 
 void GameScene::drawScore()
 {
-    display->setTextSize(1);
+    display->setTextSize(2);
     display->setFont(&Org_01);
-    display->setTextColor(SSD1306_WHITE);
-    display->setCursor(displayProperties->topLeftX + 2, 6);
+    display->setTextColor(ST7789_WHITE, ST7789_BLACK);
+    display->setCursor(displayProperties->topLeftX + 1, 10);
+    display->fillRect(displayProperties->topLeftX, 1, 12, 12, ST7789_BLACK);
     display->print(gameEntities->getPaddle1()->getScore());
 
     display->setFont(&Org_01);
-    display->setTextColor(SSD1306_WHITE);
-    display->setCursor(displayProperties->topRightX - 6, 6);
+    display->setTextColor(ST7789_WHITE, ST7789_BLACK);
+    display->setCursor(displayProperties->topRightX - 10, 10);
+    display->fillRect(displayProperties->topRightX - 12, 1, 12, 12, ST7789_BLACK);
     display->print(gameEntities->getPaddle2()->getScore());
 }
 
 void GameScene::drawBall()
 {
+    unsigned int ballLastX = gameEntities->getBall()->getLastPositionX();
+    unsigned int ballLastY = gameEntities->getBall()->getLastPositionY();
     unsigned int ballX = gameEntities->getBall()->getPositionX();
     unsigned int ballY = gameEntities->getBall()->getPositionY();
     unsigned int ballR = gameEntities->getBall()->getRadius();
-    display->fillCircle(ballX, ballY, ballR, WHITE);
+    display->fillCircle(ballLastX, ballLastY, ballR+3, ST7789_BLACK);
+    display->fillCircle(ballX, ballY, ballR, ST7789_WHITE);
 }
 
 void GameScene::drawPaddle(Paddle *paddle)
 {
+    int paddleLastX = paddle->getLastPositionX();
+    int paddleLastY = paddle->getLastPositionY();
     int paddleX = paddle->getPositionX();
     int paddleY = paddle->getPositionY();
     int paddleWidth = paddle->getWidth();
     int paddleHeight = paddle->getHeight();
-    display->fillRect(paddleX, paddleY, paddleWidth, paddleHeight, WHITE);
+
+    //NEEDS TO BE UPDATED TO DRAW PADDLE WHEN SCREEN IS CHANGED
+    //if (paddleLastX != paddleX || paddleLastY != paddleY){
+        display->fillRect(paddleLastX, paddleLastY-2, paddleWidth, paddleHeight+4, ST7789_BLACK);
+        display->fillRect(paddleX, paddleY, paddleWidth, paddleHeight, ST7789_WHITE);
+    //}
+    //
 }

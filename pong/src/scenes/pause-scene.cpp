@@ -34,19 +34,27 @@ void PauseScene::tick()
 
 void PauseScene::render()
 {
-  display->setTextSize(2); // Draw 2X-scale text
-  display->setTextColor(SSD1306_WHITE);
-  display->setCursor(38, 12);
-  display->println(F("PAUSE"));
+  if(!rendered){
+    //display->fillScreen(ST7789_BLACK);
+    display->setTextSize(2); // Draw 2X-scale text
+    display->setTextColor(ST7789_WHITE);
+    //display->setCursor(38, 12);
+    display->setCursor(130, 100);
+    display->println(F("PAUSE"));
 
-  if (drawPlayImage)
-    display->drawXBitmap(48, 18, PAUSE_ICON, 32, 32, SSD1306_WHITE);
-
-  display->setTextSize(1);
-  display->setTextColor(SSD1306_WHITE);
-  display->setCursor(20, 56);
-  display->println(F("Press to restart"));
-
+    display->setTextSize(1);
+    display->setTextColor(ST7789_WHITE);
+    //display->setCursor(20, 56);
+    display->setCursor(118, 154);
+    display->println(F("Press to restart"));
+  }
+  if (drawPlayImage){
+    display->drawXBitmap(146, 110, PAUSE_ICON, 32, 32, ST7789_WHITE);
+    //display->fillRect(48, 18, 32, 32, ST7789_WHITE);
+  } else {
+    display->fillRect(146, 110, 32, 32, ST7789_BLACK);
+  }
+  
   Scene::render();
   /*
       char strBuf[20]; // used for string formatting

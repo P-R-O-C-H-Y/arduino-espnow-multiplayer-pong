@@ -1,5 +1,7 @@
 {
-    "sketch": "arduino-multiplayer-pong.ino",
+    "configuration": "USBMode=hwcdc,MSCOnBoot=default,DFUOnBoot=default,PartitionScheme=app3M_fat9M_16MB,DebugLevel=error,EraseFlash=none",
+    "board": "espressif:esp32:esp32s3box",
+    "sketch": "pong/pong.ino",
     "output": "build",
-    "board": "arduino:avr:mega"
+    "port": "/dev/tty.usbmodem112201"
 }

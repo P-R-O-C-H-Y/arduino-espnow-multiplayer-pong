@@ -9,6 +9,8 @@ struct PositionMessage : public Message
     EntityType enityType;
     unsigned int positionX;
     unsigned int positionY;
+    unsigned int lastPositionX;
+    unsigned int lastPositionY;
 
     PositionMessage()
     {

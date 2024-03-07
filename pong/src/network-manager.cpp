@@ -130,22 +130,22 @@ void NetworkManager::initialize(GameEntity *gameEntity, SceneManager *sceneManag
     // Deinit ESP-NOW to ensure a clean start
     esp_now_deinit();
 
-    Serial.println("ESP initialize");
+    log_i("ESP initialize");
 
     // Init ESP-NOW
     if (esp_now_init() != ESP_OK)
     {
-        Serial.println("Error initializing ESP-NOW");
+        log_e("Error initializing ESP-NOW");
         vTaskDelay(pdMS_TO_TICKS(1000));
         ESP.restart();
         return;
     }
-    Serial.println("ESP NOW INIT");
+    log_i("ESP NOW INIT");
 
     // Once ESPNow is successfully Init, we will register for Send CB to get the status of Trasnmitted paket
     esp_now_register_send_cb(onDataSent);
 
-    Serial.println("after esp_now_register_send_cb");
+    log_i("after esp_now_register_send_cb");
 
     if (!instance->addPeer())
         return;
@@ -153,7 +153,7 @@ void NetworkManager::initialize(GameEntity *gameEntity, SceneManager *sceneManag
     //  Register for a callback function that will be called when data is received
     esp_now_register_recv_cb(onDataRecv);
 
-    Serial.println("after esp_now_register_recv_cb");
+    log_i("after esp_now_register_recv_cb");
 
     instance->sceneManager = sceneManager;
     instance->gameEntity = gameEntity;
@@ -178,7 +178,7 @@ void NetworkManager::onDataSent(const uint8_t *mac_addr, esp_now_send_status_t s
 }
 
 // Callback when data is received
-void NetworkManager::onDataRecv(const uint8_t *mac_addr, const uint8_t *data, int data_len)
+void NetworkManager::onDataRecv(const esp_now_recv_info_t * info, const uint8_t *data, int data_len)
 {
     Message receive_Data;
     memcpy(&receive_Data, data, sizeof(receive_Data));
@@ -191,17 +191,23 @@ void NetworkManager::onDataRecv(const uint8_t *mac_addr, const uint8_t *data, in
         memcpy(&pm, data, sizeof(pm));
         unsigned int x = pm.positionX;
         unsigned int y = pm.positionY;
-        // Serial.printf("Receive Data - entityType: [POSITION], positionX: %i, positionY: %i\n", x, y);
+        unsigned int lastx = pm.lastPositionX;
+        unsigned int lasty = pm.lastPositionY;
+        //Serial.printf("Receive Data - entityType: [POSITION]\n positionX: %i\n positionY: %i\n lastPositionX: %i\n lastPositionY: %i\n", x, y, lastx, lasty);
         if (pm.enityType == BALL)
         {
             instance->gameEntity->getBall()->setPosition(x, y);
+            instance->gameEntity->getBall()->setLastPosition(lastx, lasty);
         }
         else
         {
-            if (instance->master)
+            if (instance->master){
                 instance->gameEntity->getPaddle1()->setPosition(x, y);
-            else
+                instance->gameEntity->getPaddle1()->setLastPosition(lastx, lasty);
+            } else {
                 instance->gameEntity->getPaddle2()->setPosition(x, y);
+                instance->gameEntity->getPaddle2()->setLastPosition(lastx, lasty);
+            }
         }
     }
     break;
@@ -229,7 +235,7 @@ bool NetworkManager::addPeer()
     peerInfo = {};
 
     memcpy(&peerInfo.peer_addr, broadcastAddress, 6);
-    // Serial.println(broadcastAddress);
+    //log_i(broadcastAddress);
     if (!esp_now_is_peer_exist(broadcastAddress))
     {
         return checkResult(esp_now_add_peer(&peerInfo), "Pair Success!!");

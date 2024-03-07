@@ -9,7 +9,7 @@ Scene::~Scene()
 {
 }
 
-void Scene::initialize(Adafruit_SSD1306 *display, DisplayProperties *displayProperties)
+void Scene::initialize(ESP32S3BOX_TFT *display, DisplayProperties *displayProperties)
 {
     this->display = display;
     this->displayProperties = displayProperties;

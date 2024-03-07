@@ -43,7 +43,6 @@ void SceneManager::changeScene(SceneType sceneType)
             Serial.printf("Change scene: %i -- %p\n", scene->getSceneType(), scene);
             renderEngine->changeScene(scene);
             gameLoop->changeScene(scene);
-
             // Serial.printf("Try to suspend %s, from status %i\n", pcTaskGetName(GameTaskManager::getInstance()->tasks.inputTaskHandler), eTaskGetState(GameTaskManager::getInstance()->tasks.inputTaskHandler));
 
             return;

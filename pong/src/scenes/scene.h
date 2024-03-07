@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include <ESP32_S3_Box_TFT.h>
 #include "../display-properties.h"
 
 enum SceneType
@@ -16,7 +16,7 @@ class Scene
 {
 protected:
     SceneType type;
-    Adafruit_SSD1306 *display;
+    ESP32S3BOX_TFT *display;
     DisplayProperties *displayProperties;
     bool rendered;
 
@@ -24,7 +24,7 @@ public:
     Scene();
     virtual ~Scene();
 
-    void initialize(Adafruit_SSD1306 *display, DisplayProperties *displayProperties);
+    void initialize(ESP32S3BOX_TFT *display, DisplayProperties *displayProperties);
     virtual void render() = 0;
     virtual void tick(){};
     virtual bool useTick() { return false; }

@@ -15,8 +15,8 @@ FinalScoreScene::~FinalScoreScene()
 void FinalScoreScene::render()
 {
     display->setTextSize(2); // Draw 2X-scale text
-    display->setTextColor(SSD1306_WHITE);
-    display->setCursor(10, 20);
+    display->setTextColor(ST7789_WHITE);
+    display->setCursor(110, 124);
 
     if (NetworkManager::getInstance()->getMyPaddle()->won())
         display->println(F("YOU WIN!"));

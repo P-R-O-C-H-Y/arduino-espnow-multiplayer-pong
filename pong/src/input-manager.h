@@ -6,9 +6,9 @@
 class InputManager
 {
 private:
-    const int HORZ = GPIO_NUM_34;
-    const int VERT = GPIO_NUM_35;
-    const int SEL = GPIO_NUM_18;
+    const int HORZ = GPIO_NUM_9;
+    const int VERT = GPIO_NUM_14;
+    const int SEL = GPIO_NUM_40;
     SceneManager* sceneManager;
 
 public:

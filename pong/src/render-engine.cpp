@@ -3,7 +3,7 @@
 #include "gameEntities/game-entity.h"
 #include "game-task-manager.h"
 
-RenderEngine::RenderEngine() : display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET), currentScene(nullptr)
+RenderEngine::RenderEngine() : display(), currentScene(nullptr)
 {
     initDisplayProperties();
 }
@@ -15,15 +15,12 @@ RenderEngine::~RenderEngine()
 void RenderEngine::initDisplayProperties()
 {
     // initialize the OLED object
-    if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
-    {
-        Serial.println(F("SSD1306 allocation failed"));
-        for (;;)
-            ; // Don't proceed, loop forever
-    }
-
+    display.init();
+    
     // clear the display
-    display.clearDisplay();
+    //display.clearDisplay();
+    display.setRotation(0);
+    display.fillScreen(ST7789_BLACK);
 
     displayProperties = new DisplayProperties;
     displayProperties->width = SCREEN_WIDTH;
@@ -56,11 +53,11 @@ void RenderEngine::render()
             lastTime = millis();
             fps = 0;
         }
-
-        display.clearDisplay();
+        delay(1000 / 40); // 50 fps
+        //display.fillScreen(ST7789_BLACK);
         if (currentScene != nullptr)
             currentScene->render();
-        display.display();
+        //display.display();
 
         /*TaskHandle_t myTaskHandle = xTaskGetCurrentTaskHandle();
         TaskHandle_t pointerHandle = GameTaskManager::getInstance()->tasks.renderTaskHandler;
@@ -85,6 +82,7 @@ void RenderEngine::changeScene(Scene *scene)
     scene->initialize(&display, displayProperties);
     currentScene = scene;
 
+    display.fillScreen(ST7789_BLACK);
     Serial.printf("Try to resume %s, from status %s\n", pcTaskGetName(GameTaskManager::getInstance()->tasks.renderTaskHandler), STATE_NAMES[eTaskGetState(GameTaskManager::getInstance()->tasks.renderTaskHandler)]);
 
     vTaskResume(GameTaskManager::getInstance()->tasks.renderTaskHandler);

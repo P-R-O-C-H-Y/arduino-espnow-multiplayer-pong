@@ -30,10 +30,18 @@ public:
         this->positionX = positionX;
         this->positionY = positionY;
     }
+    void setLastPosition(float lastPositionX, float lastPositionY)
+    {
+        this->lastPositionX = lastPositionX;
+        this->lastPositionY = lastPositionY;
+    }
     void setVelocityY(float velocityY) { this->velocityY = velocityY; }
 
     unsigned int getPositionX() { return (unsigned int) positionX; }
     unsigned int getPositionY() { return (unsigned int) positionY; }
     float getVelocityX() { return velocityX; }
     float getVelocityY() { return velocityY; }
+
+    unsigned int getLastPositionX() { return (unsigned int) lastPositionX; }
+    unsigned int getLastPositionY() { return (unsigned int) lastPositionY; }
 };

@@ -7,10 +7,11 @@
 #include "messages/message.h"
 
 // Master
-const uint8_t L_MAC_1[] = {0x78, 0x21, 0x84, 0xDD, 0xF2, 0x84};
-
+//const uint8_t L_MAC_1[] = {0x78, 0x21, 0x84, 0xDD, 0xF2, 0x84};
+const uint8_t L_MAC_1[] = {0x7C, 0xDF, 0xA1, 0xE1, 0xBE, 0x60}; //S3_BOX HONZA 7c:df:a1:e1:be:60
 // Slave
-const uint8_t L_MAC_2[] = {0x78, 0x21, 0x84, 0xDE, 0x08, 0x58};
+//const uint8_t L_MAC_2[] = {0x78, 0x21, 0x84, 0xDE, 0x08, 0x58};
+const uint8_t L_MAC_2[] = {0x7C, 0xDF, 0xA1, 0xE8, 0x12, 0x58}; //S3_BOX VOJTA 7c:df:a1:e8:12:58
 
 class NetworkManager
 {
@@ -31,7 +32,7 @@ private:
     template <typename T>
     void sendMessage(const T &message);
     static void onDataSent(const uint8_t *mac_addr, esp_now_send_status_t status);
-    static void onDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len);
+    static void onDataRecv(const esp_now_recv_info_t * info, const uint8_t *incomingData, int len);
 
     NetworkManager();
 

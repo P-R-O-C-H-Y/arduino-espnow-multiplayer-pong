@@ -39,11 +39,11 @@ void InputManager::startReading(GameEntity *gameEntities)
         velocityY = 0;
         if (vertical > 3500)
         {
-            velocityY = -2;
+            velocityY = 2;
         }
         else if (vertical < 1000)
         {
-            velocityY = 2;
+            velocityY = -2;
         }
 
         if(NetworkManager::getInstance()->isMaster()) paddle2->updateVelocity(0, velocityY);

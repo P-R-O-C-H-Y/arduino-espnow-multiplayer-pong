@@ -6,28 +6,28 @@
 
 void xTaskRender(void *params)
 {
-    Serial.println(F("Starting task 'xTaskRender'"));
+    log_i("Starting task 'xTaskRender'");
     GameEngine *engine = static_cast<GameEngine *>(params);
     engine->getRenderEngine()->render();
 }
 
 void xTaskGameLoop(void *params)
 {
-    Serial.println(F("Starting task 'xTaskGameLoop'"));
+    log_i("Starting task 'xTaskGameLoop'");
     GameEngine *engine = static_cast<GameEngine *>(params);
     engine->getGameLoopHandler()->update(engine->getGameEntity());
 }
 
 void xTaskInputManager(void *params)
 {
-    Serial.println(F("Starting task 'xTaskInputManager'"));
+   log_i("Starting task 'xTaskInputManager'");
     GameEngine *engine = static_cast<GameEngine *>(params);
     engine->getInputManager()->startReading(engine->getGameEntity());
 }
 
 void xTaskNetwork(void *params)
 {
-    Serial.println(F("Starting task 'xTaskNetwork'"));
+    log_i("Starting task 'xTaskNetwork'");
     GameEngine *engine = static_cast<GameEngine *>(params);
     // engine->getNetworkManager()->receiveData();
     NetworkManager::getInstance()->startCommunication();
@@ -35,17 +35,17 @@ void xTaskNetwork(void *params)
 
 void xTaskStatus(void *params)
 {
-    Serial.println(F("Starting task 'xTaskStatus'"));
+    log_i("Starting task 'xTaskStatus'");
     GameTaskManager *gmt = GameTaskManager::getInstance();
     while (true)
     {
-        Serial.print(F("\n\n------ APP STATUS ------\n"));
+        log_i("\n\n------ APP STATUS ------\n");
         gmt->printTasksStatus();
-        Serial.printf("Memory heap: %i (used) / %i (total)\n", ESP.getFreeHeap(), ESP.getHeapSize());
-        Serial.printf("Sketch space: %i (used) / %i (available)\n", ESP.getSketchSize(), ESP.getFreeSketchSpace());
-        Serial.print(F("------------------------\n\n\n"));
-        Serial.printf("\nCHIP MAC: %012llx\n", ESP.getEfuseMac());
-        Serial.printf("\nCHIP MODEL: %012llx\n", ESP.getChipModel());
+        log_i("Memory heap: %i (used) / %i (total)\n", ESP.getFreeHeap(), ESP.getHeapSize());
+        log_i("Sketch space: %i (used) / %i (available)\n", ESP.getSketchSize(), ESP.getFreeSketchSpace());
+        log_i("------------------------\n\n\n");
+        log_i("\nCHIP MAC: %012llx\n", ESP.getEfuseMac());
+        log_i("\nCHIP MODEL: %012llx\n", ESP.getChipModel());
         vTaskDelay(pdMS_TO_TICKS(10000));
     }
 }
@@ -125,14 +125,14 @@ void GameEngine::createTasks()
         1);
 
     // Create the task for printing the status
-    xTaskCreatePinnedToCore(
-        xTaskStatus, // Pointer to the task function
-        "StatLoop",  // Task name
-        4096,        // Stack size in words
-        this,        // Task parameter
-        1,           // Task priority
-        &GameTaskManager::getInstance()->tasks.statusTaskHandler,
-        1);
+    // xTaskCreatePinnedToCore(
+    //     xTaskStatus, // Pointer to the task function
+    //     "StatLoop",  // Task name
+    //     4096,        // Stack size in words
+    //     this,        // Task parameter
+    //     1,           // Task priority
+    //     &GameTaskManager::getInstance()->tasks.statusTaskHandler,
+    //     1);
 }
 
 void GameEngine::stop()
