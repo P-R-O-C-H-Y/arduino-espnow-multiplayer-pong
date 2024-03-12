@@ -3,7 +3,7 @@
 enum Collision
 {
     LEFT,
-    RIGTH,
+    RIGHT,
     BOARD,
     NONE
 };

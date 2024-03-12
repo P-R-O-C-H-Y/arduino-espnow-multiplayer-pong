@@ -42,7 +42,7 @@ Collision Ball::collideWithBoard(DisplayProperties *displayProperties)
     {
         positionX = displayProperties->topRightX - RADIUS - 1;
         reverseVelocityX();
-        collide = RIGTH;
+        collide = RIGHT;
     }
 
     return collide;

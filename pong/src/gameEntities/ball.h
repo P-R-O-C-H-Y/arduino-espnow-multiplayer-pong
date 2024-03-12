@@ -3,11 +3,11 @@
 #include "paddle.h"
 #include "entity.h"
 
-#define START_VELOCITY_X    2//1
-#define START_VELOCITY_Y    1.6f//0.8f
-#define MIN_VELOCITY_X      1.2f//0.6f
-#define MAX_VELOCITY_X      2.4f//1.2f
-#define MAX_VELOCITY_Y      6//3
+#define START_VELOCITY_X    3//1
+#define START_VELOCITY_Y    2.4f//0.8f
+#define MIN_VELOCITY_X      1.8f//0.6f
+#define MAX_VELOCITY_X      3.6f//1.2f
+#define MAX_VELOCITY_Y      9//3
 
 struct Boundary
 {

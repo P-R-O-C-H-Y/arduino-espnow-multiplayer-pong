@@ -59,6 +59,7 @@ void GameScene::tick()
 
     ball->move();
     paddle2->move();
+
     // moveUsingAI(paddle1, true);
     // moveUsingAI(paddle2, true);
 
@@ -72,9 +73,11 @@ void GameScene::tick()
     {
     case LEFT:
         addPoint(paddle2);
+        display->fillRect(0, 1, 11, displayProperties->height-2, ST7789_BLACK);
         break;
-    case RIGTH:
+    case RIGHT:
         addPoint(paddle1);
+        display->fillRect(309, 1, 11, displayProperties->height-2, ST7789_BLACK);
         break;
     default:
         break;
@@ -154,14 +157,14 @@ void GameScene::drawScore()
     display->setTextSize(2);
     display->setFont(&Org_01);
     display->setTextColor(ST7789_WHITE, ST7789_BLACK);
-    display->setCursor(displayProperties->topLeftX + 1, 10);
-    display->fillRect(displayProperties->topLeftX, 1, 12, 12, ST7789_BLACK);
+    display->setCursor((displayProperties->width/2) - 16, 10);
+    display->fillRect((displayProperties->width/2) - 16, 1, 12, 12, ST7789_BLACK);
     display->print(gameEntities->getPaddle1()->getScore());
 
     display->setFont(&Org_01);
     display->setTextColor(ST7789_WHITE, ST7789_BLACK);
-    display->setCursor(displayProperties->topRightX - 10, 10);
-    display->fillRect(displayProperties->topRightX - 12, 1, 12, 12, ST7789_BLACK);
+    display->setCursor((displayProperties->width/2) + 6, 10);
+    display->fillRect((displayProperties->width/2) + 6, 1, 12, 12, ST7789_BLACK);
     display->print(gameEntities->getPaddle2()->getScore());
 }
 
@@ -174,6 +177,7 @@ void GameScene::drawBall()
     unsigned int ballR = gameEntities->getBall()->getRadius();
     display->fillCircle(ballLastX, ballLastY, ballR+3, ST7789_BLACK);
     display->fillCircle(ballX, ballY, ballR, ST7789_WHITE);
+    // gameEntities->getBall()->setLastPosition(ballX, ballY);
 }
 
 void GameScene::drawPaddle(Paddle *paddle)
@@ -186,9 +190,34 @@ void GameScene::drawPaddle(Paddle *paddle)
     int paddleHeight = paddle->getHeight();
 
     //NEEDS TO BE UPDATED TO DRAW PADDLE WHEN SCREEN IS CHANGED
+
+
+    //TODO: redraw paddle by checking Y change   
     //if (paddleLastX != paddleX || paddleLastY != paddleY){
-        display->fillRect(paddleLastX, paddleLastY-2, paddleWidth, paddleHeight+4, ST7789_BLACK);
-        display->fillRect(paddleX, paddleY, paddleWidth, paddleHeight, ST7789_WHITE);
-    //}
-    //
+    display->fillRect(paddleX, paddleY, paddleWidth, paddleHeight, ST7789_WHITE);
+    //remove old paddle when moved up only few pixels no not overdraw
+    if (paddleLastY > paddleY){ //paddle moved up
+        display->fillRect(paddleX, paddleY + paddleHeight, paddleWidth, paddleLastY - paddleY, ST7789_BLACK);
+    }
+    else if (paddleLastY < paddleY){ //paddle moved down
+        //log_e("paddleLastY: %d, paddleY: %d", paddleLastY, paddleY);
+        display->fillRect(paddleLastX, paddleLastY, paddleWidth, paddleY - paddleLastY, ST7789_BLACK);
+    }
+    else {} //padle not moved
+
+    if(paddleX < displayProperties->width/2){ //paddle left (slave)
+        // display->fillRect(0, 1, paddleWidth+11, displayProperties->height-2, ST7789_BLACK);
+        // display->fillRect(paddleX, paddleY, paddleWidth, paddleHeight, ST7789_WHITE);
+        if (NetworkManager::getInstance()->isMaster()){
+            paddle->setLastPosition(paddleX, paddleY);
+        }
+    }
+    else {   //paddle right (master)
+        // display->fillRect(305, 1, paddleWidth+11, displayProperties->height-2, ST7789_BLACK);
+        // display->fillRect(paddleX, paddleY, paddleWidth, paddleHeight, ST7789_WHITE);
+        if (NetworkManager::getInstance()->isSlave()){
+            paddle->setLastPosition(paddleX, paddleY);
+        }
+    }
+
 }

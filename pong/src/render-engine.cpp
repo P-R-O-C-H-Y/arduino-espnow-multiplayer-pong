@@ -53,7 +53,7 @@ void RenderEngine::render()
             lastTime = millis();
             fps = 0;
         }
-        delay(1000 / 40); // 50 fps
+        delay(1000 / 60); // 50 fps
         //display.fillScreen(ST7789_BLACK);
         if (currentScene != nullptr)
             currentScene->render();

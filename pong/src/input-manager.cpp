@@ -36,6 +36,7 @@ void InputManager::startReading(GameEntity *gameEntities)
         }
 
         vertical = analogRead(VERT);
+        //Serial.println(vertical);
         velocityY = 0;
         if (vertical > 3500)
         {

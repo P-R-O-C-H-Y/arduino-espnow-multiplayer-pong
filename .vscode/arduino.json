@@ -3,5 +3,5 @@
     "board": "espressif:esp32:esp32s3box",
     "sketch": "pong/pong.ino",
     "output": "build",
-    "port": "/dev/tty.usbmodem112201"
+    "port": "/dev/tty.usbmodem112301"
 }

@@ -107,7 +107,7 @@ void NetworkManager::startCommunication()
             }
         }
 
-        vTaskDelay(pdMS_TO_TICKS(30));
+        vTaskDelay(pdMS_TO_TICKS(5));
     }
 }
 
@@ -203,10 +203,10 @@ void NetworkManager::onDataRecv(const esp_now_recv_info_t * info, const uint8_t 
         {
             if (instance->master){
                 instance->gameEntity->getPaddle1()->setPosition(x, y);
-                instance->gameEntity->getPaddle1()->setLastPosition(lastx, lasty);
+                // instance->gameEntity->getPaddle1()->setLastPosition(lastx, lasty);
             } else {
                 instance->gameEntity->getPaddle2()->setPosition(x, y);
-                instance->gameEntity->getPaddle2()->setLastPosition(lastx, lasty);
+                // instance->gameEntity->getPaddle2()->setLastPosition(lastx, lasty);
             }
         }
     }
