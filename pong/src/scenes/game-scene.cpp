@@ -136,6 +136,10 @@ void GameScene::render()
         scored = false;
     }
 
+    //clear goal area on both sides 
+    display->fillRect(0, displayProperties->topLeftY+1, 11, displayProperties->height - displayProperties->topLeftY - 2, ST7789_BLACK);
+    display->fillRect(309, displayProperties->topRightY+1, 11, displayProperties->height - displayProperties->topLeftY - 2, ST7789_BLACK);
+
     drawBall();
     drawPaddle(gameEntities->getPaddle1());
     drawPaddle(gameEntities->getPaddle2());
@@ -202,7 +206,7 @@ void GameScene::drawBall()
     unsigned int ballX = gameEntities->getBall()->getPositionX();
     unsigned int ballY = gameEntities->getBall()->getPositionY();
     unsigned int ballR = gameEntities->getBall()->getRadius();
-    display->fillCircle(ballLastX, ballLastY, ballR+4, ST7789_BLACK);
+    display->fillCircle(ballLastX, ballLastY, ballR+5, ST7789_BLACK);
     display->fillCircle(ballX, ballY, ballR, ST7789_WHITE);
     //log_e("paddleLastX: %d, paddleX: %d", ballLastX, ballX);
     //log_e("paddleLastY: %d, paddleY: %d", ballLastY, ballY);

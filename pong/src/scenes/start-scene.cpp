@@ -102,6 +102,7 @@ StartScene::~StartScene()
 
 void StartScene::render()
 {
+    display->fillScreen(ST7789_BLACK);
     display->drawXBitmap(80, 90, IMG, 64, 64, ST7789_WHITE);
     
     display->setTextSize(2); // Draw 2X-scale text
