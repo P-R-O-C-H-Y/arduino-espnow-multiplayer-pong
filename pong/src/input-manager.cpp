@@ -31,7 +31,7 @@ void InputManager::startReading(GameEntity *gameEntities)
         btn = digitalRead(SEL);
         if (btn == LOW && btn_prev == HIGH)
         {
-            Serial.println("button pressed");
+            log_i("button pressed");
             sceneManager->changeScene();
         }
 
