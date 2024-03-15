@@ -108,9 +108,9 @@ void GameEngine::createTasks()
     xTaskCreatePinnedToCore(
         xTaskGameLoop, // Pointer to the task function
         "GameLoop",    // Task name
-        4096,          // Stack size in words
+        8192,          // Stack size in words
         this,          // Task parameter
-        1,             // Task priority => was 2
+        2,             // Task priority => was 2
         &GameTaskManager::getInstance()->tasks.gameLoopTaskHandler,
         1);
 
@@ -118,9 +118,9 @@ void GameEngine::createTasks()
     xTaskCreatePinnedToCore(
         xTaskNetwork, // Pointer to the task function
         "NetLoop",    // Task name
-        4096,         // Stack size in words
+        8192,         // Stack size in words
         this,         // Task parameter
-        1,            // Task priority
+        0,            // Task priority
         &GameTaskManager::getInstance()->tasks.networkTaskHandler,
         1);
 
