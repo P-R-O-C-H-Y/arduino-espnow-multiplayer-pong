@@ -14,14 +14,16 @@ FinalScoreScene::~FinalScoreScene()
 
 void FinalScoreScene::render()
 {
-    display->setTextSize(2); // Draw 2X-scale text
+    display->fillScreen(ST7789_BLACK);
+    display->setTextSize(3); // Draw 2X-scale text
     display->setTextColor(ST7789_WHITE);
-    display->setCursor(110, 124);
 
-    if (NetworkManager::getInstance()->getMyPaddle()->won())
+    if (NetworkManager::getInstance()->getMyPaddle()->won()){
+        display->setCursor(95, 124);
         display->println(F("YOU WIN!"));
-    else
+    } else {
+        display->setCursor(80, 124);
         display->println(F("YOU LOSE!"));
-
+    }
     Scene::render();
 }

@@ -20,7 +20,7 @@ struct Boundary
 class Ball : public Entity
 {
 private:
-    const unsigned int RADIUS = 4;
+    const unsigned int RADIUS = 3;
 
     void addRandomness(float randomX, float randomY);
     bool intersect(const Boundary &r1, const Boundary &r2);

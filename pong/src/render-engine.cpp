@@ -27,10 +27,10 @@ void RenderEngine::initDisplayProperties()
     displayProperties->height = SCREEN_HEIGHT;
 
     displayProperties->topLeftX = 0;
-    displayProperties->topLeftY = 0;
+    displayProperties->topLeftY = 30;
 
     displayProperties->topRightX = SCREEN_WIDTH - 1;
-    displayProperties->topRightY = 0;
+    displayProperties->topRightY = 30;
 
     displayProperties->bottomLeftX = 0;
     displayProperties->bottomLeftY = SCREEN_HEIGHT - 1;
@@ -53,7 +53,7 @@ void RenderEngine::render()
             lastTime = millis();
             fps = 0;
         }
-        delay(1000 / 60); // 50 fps
+        delay(1000 / 125); // cap at 125 fps - real fps 60
         //display.fillScreen(ST7789_BLACK);
         if (currentScene != nullptr)
             currentScene->render();

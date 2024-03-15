@@ -35,7 +35,6 @@ const int SPACE = 15;
 GameScene::GameScene(SceneManager *sm, GameEntity *ge) : sceneManager(sm), gameEntities(ge)
 {
     type = GAME;
-    //display->fillScreen(ST7789_BLACK);
 }
 
 GameScene::~GameScene()
@@ -130,20 +129,33 @@ void GameScene::moveUsingAI(Paddle *paddle, bool godMode)
 void GameScene::render()
 {
     // Serial.println("GameRender");
+    drawScore();
 
+    if(scored){ //redraw playing area and paddles after score
+        display->fillRect(displayProperties->topLeftX, displayProperties->topLeftY+1, displayProperties->width, displayProperties->height - displayProperties->topLeftY-2, ST7789_BLACK);
+        scored = false;
+    }
 
     drawBall();
     drawPaddle(gameEntities->getPaddle1());
     drawPaddle(gameEntities->getPaddle2());
 
     drawBorder();
-    drawScore();
 
-    display->drawXBitmap(160, 0, DOTTED_LINE, 1, 240, ST7789_WHITE);
+    display->drawXBitmap(160, displayProperties->topLeftY, DOTTED_LINE, 1, 240 - displayProperties->topLeftY, ST7789_WHITE);
 
+    drawHeader();
     Scene::render();
 }
 
+void GameScene::drawHeader()
+{
+    display->setTextSize(1,2);
+    display->setFont(&Org_01);
+    display->setTextColor(ST7789_WHITE, ST7789_BLACK);
+    display->setCursor(95, 19);
+    display->print("ESP32 MULTIPLAYER PONG");
+}
 void GameScene::drawBorder()
 {
     // top line
@@ -154,17 +166,32 @@ void GameScene::drawBorder()
 
 void GameScene::drawScore()
 {
-    display->setTextSize(2);
+    static int8_t last_p1_score = -1;
+    static int8_t last_p2_score = -1;
+
+    display->setTextSize(3);
     display->setFont(&Org_01);
     display->setTextColor(ST7789_WHITE, ST7789_BLACK);
-    display->setCursor((displayProperties->width/2) - 16, 10);
-    display->fillRect((displayProperties->width/2) - 16, 1, 12, 12, ST7789_BLACK);
+    display->setCursor(8, 20);
+    if(gameEntities->getPaddle1()->getScore() != last_p1_score){
+        last_p1_score = gameEntities->getPaddle1()->getScore(); 
+        display->fillRect(0, 0, 30, 30, ST7789_BLACK);
+        scored = true;
+    }
     display->print(gameEntities->getPaddle1()->getScore());
 
     display->setFont(&Org_01);
     display->setTextColor(ST7789_WHITE, ST7789_BLACK);
-    display->setCursor((displayProperties->width/2) + 6, 10);
-    display->fillRect((displayProperties->width/2) + 6, 1, 12, 12, ST7789_BLACK);
+    if(gameEntities->getPaddle2()->getScore() == 1){ // number 1, shift X cursor few pixels to the right
+        display->setCursor(displayProperties->width - 8, 20);
+    } else {
+        display->setCursor(displayProperties->width - 20, 20);
+    }
+    if(gameEntities->getPaddle2()->getScore() != last_p2_score){
+        last_p2_score = gameEntities->getPaddle2()->getScore();
+        display->fillRect((displayProperties->width) - 20, 0, 30, 30, ST7789_BLACK);
+        scored = true;
+    }
     display->print(gameEntities->getPaddle2()->getScore());
 }
 
@@ -175,8 +202,10 @@ void GameScene::drawBall()
     unsigned int ballX = gameEntities->getBall()->getPositionX();
     unsigned int ballY = gameEntities->getBall()->getPositionY();
     unsigned int ballR = gameEntities->getBall()->getRadius();
-    display->fillCircle(ballLastX, ballLastY, ballR+3, ST7789_BLACK);
+    display->fillCircle(ballLastX, ballLastY, ballR+4, ST7789_BLACK);
     display->fillCircle(ballX, ballY, ballR, ST7789_WHITE);
+    //log_e("paddleLastX: %d, paddleX: %d", ballLastX, ballX);
+    //log_e("paddleLastY: %d, paddleY: %d", ballLastY, ballY);
     // gameEntities->getBall()->setLastPosition(ballX, ballY);
 }
 
@@ -189,13 +218,8 @@ void GameScene::drawPaddle(Paddle *paddle)
     int paddleWidth = paddle->getWidth();
     int paddleHeight = paddle->getHeight();
 
-    //NEEDS TO BE UPDATED TO DRAW PADDLE WHEN SCREEN IS CHANGED
-
-
-    //TODO: redraw paddle by checking Y change   
-    //if (paddleLastX != paddleX || paddleLastY != paddleY){
     display->fillRect(paddleX, paddleY, paddleWidth, paddleHeight, ST7789_WHITE);
-    //remove old paddle when moved up only few pixels no not overdraw
+
     if (paddleLastY > paddleY){ //paddle moved up
         display->fillRect(paddleX, paddleY + paddleHeight, paddleWidth, paddleLastY - paddleY, ST7789_BLACK);
     }
@@ -203,18 +227,14 @@ void GameScene::drawPaddle(Paddle *paddle)
         //log_e("paddleLastY: %d, paddleY: %d", paddleLastY, paddleY);
         display->fillRect(paddleLastX, paddleLastY, paddleWidth, paddleY - paddleLastY, ST7789_BLACK);
     }
-    else {} //padle not moved
+    else {} //padle not moved, nothing to clear
 
     if(paddleX < displayProperties->width/2){ //paddle left (slave)
-        // display->fillRect(0, 1, paddleWidth+11, displayProperties->height-2, ST7789_BLACK);
-        // display->fillRect(paddleX, paddleY, paddleWidth, paddleHeight, ST7789_WHITE);
         if (NetworkManager::getInstance()->isMaster()){
             paddle->setLastPosition(paddleX, paddleY);
         }
     }
     else {   //paddle right (master)
-        // display->fillRect(305, 1, paddleWidth+11, displayProperties->height-2, ST7789_BLACK);
-        // display->fillRect(paddleX, paddleY, paddleWidth, paddleHeight, ST7789_WHITE);
         if (NetworkManager::getInstance()->isSlave()){
             paddle->setLastPosition(paddleX, paddleY);
         }

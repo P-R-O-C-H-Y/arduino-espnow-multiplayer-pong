@@ -11,6 +11,7 @@ private:
     SceneManager* sceneManager;
     GameEntity* gameEntities;
     SceneMessage sm;
+    bool scored = false;
 
     void addPoint(Paddle *paddle);
     // void moveUsingAI(Paddle *paddle, bool godMode);
@@ -19,6 +20,7 @@ private:
     void drawBall();
     void drawPaddle(Paddle *paddle);
     void drawScore();
+    void drawHeader();
 
 public:
     GameScene(SceneManager* sceneManager, GameEntity *gameEntities);

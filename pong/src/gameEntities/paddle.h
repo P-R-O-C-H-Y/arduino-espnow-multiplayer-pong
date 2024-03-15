@@ -8,7 +8,7 @@
 class Paddle : public Entity
 {
 private:
-    const unsigned int HEIGHT = 24;
+    const unsigned int HEIGHT = 30;
     const unsigned int WIDTH = 4;
     unsigned int score = 0;
     unsigned int lastScore = 0;

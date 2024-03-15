@@ -36,23 +36,22 @@ void PauseScene::render()
 {
   if(!rendered){
     //display->fillScreen(ST7789_BLACK);
-    display->setTextSize(2); // Draw 2X-scale text
+    display->setTextSize(3); // Draw 2X-scale text
     display->setTextColor(ST7789_WHITE);
     //display->setCursor(38, 12);
-    display->setCursor(130, 100);
+    display->setCursor(116, 90);
     display->println(F("PAUSE"));
 
-    display->setTextSize(1);
+    display->setTextSize(2);
     display->setTextColor(ST7789_WHITE);
     //display->setCursor(20, 56);
-    display->setCursor(118, 154);
-    display->println(F("Press to restart"));
+    display->setCursor(75, 170);
+    display->println(F("Press to continue"));
   }
   if (drawPlayImage){
-    display->drawXBitmap(146, 110, PAUSE_ICON, 32, 32, ST7789_WHITE);
-    //display->fillRect(48, 18, 32, 32, ST7789_WHITE);
+    display->fillTriangle(146, 110, 146, 142, 178, 126, ST7789_WHITE);
   } else {
-    display->fillRect(146, 110, 32, 32, ST7789_BLACK);
+    display->fillTriangle(146, 110, 146, 142, 178, 126, ST7789_BLACK);
   }
   
   Scene::render();
