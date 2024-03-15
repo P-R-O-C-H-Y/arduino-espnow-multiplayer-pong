@@ -3,7 +3,7 @@
 #include "game-task-manager.h"
 
 static const int SKEW = 3;
-static const int UPS_SET = 30;
+static const int UPS_SET = 40; //30 - original value , 40 - sometimes fragment appears
 static const int MAXBOUNCEANGLE = 75;
 static const int BALL_SPEED = 1;
 
@@ -24,12 +24,14 @@ void GameLoop::update(GameEntity *gameEntities)
     paddle1->updateVelocity(0, 2);
     // paddle2->updateVelocity(0, -0.2f);
 
-    const double MS_PER_UPDATE = 1000.0 / UPS_SET;
+    //const double MS_PER_UPDATE = 1000.0 / UPS_SET;
+    const unsigned long MS_PER_UPDATE = 1000 / UPS_SET;
     unsigned long current = millis();
     unsigned long previous = current;
     unsigned long lastCheck = current;
     unsigned long elapsed = 0L;
-    double lag = 0.0;
+    // double lag = 0.0;
+    long lag = 0;
     int ups = 0;
 
     while (true)
@@ -55,11 +57,12 @@ void GameLoop::update(GameEntity *gameEntities)
         if (current - lastCheck >= 1000)
         {
             lastCheck = current;
-            Serial.printf("UPS: %i, %p\n", ups, currentScene);
+            log_i("UPS: %i, %p", ups, currentScene);
             ups = 0;
         }
 
-        vTaskDelay(pdMS_TO_TICKS(10));
+        vTaskDelay(pdMS_TO_TICKS(20));
+        //delay(10);
     }
 }
 

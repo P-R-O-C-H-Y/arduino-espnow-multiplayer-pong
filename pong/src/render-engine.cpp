@@ -49,11 +49,16 @@ void RenderEngine::render()
         fps++;
         if (millis() > lastTime + 1000)
         {
-            Serial.printf("FPS: %i\n", fps);
+            log_i("FPS: %i", fps);
             lastTime = millis();
             fps = 0;
         }
-        delay(1000 / 125); // cap at 125 fps - real fps 60
+        if(currentScene != nullptr && currentScene->getSceneType() == GAME){
+            delay(1000 / 200); // cap at 200 fps - game real fps 80 (ideal)
+        }
+        else{
+            delay(1000 / 30); // cap at 60 fps
+        }
         //display.fillScreen(ST7789_BLACK);
         if (currentScene != nullptr)
             currentScene->render();
