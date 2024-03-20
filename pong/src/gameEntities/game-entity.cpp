@@ -16,7 +16,7 @@ void GameEntity::initialize(DisplayProperties *displayProperties)
 
 void GameEntity::resetGame()
 {
-    const int space = 10;
+    const int space = 12;
     int width = displayProperties->width;
     int height = displayProperties->height;
 

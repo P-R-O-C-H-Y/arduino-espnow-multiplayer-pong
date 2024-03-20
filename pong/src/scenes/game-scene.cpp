@@ -137,8 +137,8 @@ void GameScene::render()
     }
 
     //clear goal area on both sides 
-    display->fillRect(0, displayProperties->topLeftY+1, 11, displayProperties->height - displayProperties->topLeftY - 2, ST7789_BLACK);
-    display->fillRect(309, displayProperties->topRightY+1, 11, displayProperties->height - displayProperties->topLeftY - 2, ST7789_BLACK);
+    display->fillRect(0, displayProperties->topLeftY+2, 12, displayProperties->height - displayProperties->topLeftY - 3, ST7789_BLACK);
+    display->fillRect(308, displayProperties->topRightY+2, 12, displayProperties->height - displayProperties->topLeftY - 3, ST7789_BLACK);
 
     drawBall();
     drawPaddle(gameEntities->getPaddle1());

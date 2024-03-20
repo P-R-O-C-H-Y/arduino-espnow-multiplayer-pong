@@ -5,11 +5,11 @@
 #include "messages/scene-message.h"
 #include "game-task-manager.h"
 
-#include <esp_wifi.h>
+#include <esp_now.h>
 
 NetworkManager *NetworkManager::instance = nullptr;
 
-NetworkManager::NetworkManager() : initialized(false)
+NetworkManager::NetworkManager() : ESP_NOW_Peer(nullptr), initialized(false)
 {
     // ESP32 in Station Mode
     WiFi.mode(WIFI_STA);
@@ -52,10 +52,12 @@ template <typename T>
 void NetworkManager::sendMessage(const T &message)
 {
     // Send message
-    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&message, sizeof(T));
-
+    // esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&message, sizeof(T));
+    if(this->send((uint8_t *)&message, sizeof(T)) == 0){
+        Serial.println("Error sending message");
+    }
     // Print results to serial monitor
-    checkResult(result, "Message sent!!");
+    // checkResult(result, "Message sent!!");
 }
 
 void NetworkManager::startCommunication()
@@ -98,7 +100,7 @@ void NetworkManager::startCommunication()
 
         if (xQueueReceive(xQueue, &(pxRxedMessage), 10) == pdPASS)
         {
-            Serial.printf("Received message from queue - messageType %i, queue space %i\n", pxRxedMessage->messageType, uxQueueSpacesAvailable(xQueue));
+            //Serial.printf("Received message from queue - messageType %i, queue space %i\n", pxRxedMessage->messageType, uxQueueSpacesAvailable(xQueue));
             if (pxRxedMessage->messageType == SCENE)
             {
                 sm = *((SceneMessage *)pxRxedMessage);
@@ -107,7 +109,7 @@ void NetworkManager::startCommunication()
             }
         }
 
-        vTaskDelay(pdMS_TO_TICKS(5));
+        vTaskDelay(pdMS_TO_TICKS(4));
     }
 }
 
@@ -122,38 +124,63 @@ NetworkManager *NetworkManager::getInstance()
 
 void NetworkManager::initialize(GameEntity *gameEntity, SceneManager *sceneManager)
 {
+    log_i("NetworkManager initialize");
     instance = getInstance();
 
-    if (instance->initialized)
+    if (instance->initialized){
+        log_i("Already initialized");
         return;
+    }
 
     // Deinit ESP-NOW to ensure a clean start
-    esp_now_deinit();
-
-    log_i("ESP initialize");
-
+    //TODO: Check if this is necessary
+    //esp_now_deinit();
+    
     // Init ESP-NOW
-    if (esp_now_init() != ESP_OK)
+    if (!ESP_NOW.begin())
     {
         log_e("Error initializing ESP-NOW");
-        vTaskDelay(pdMS_TO_TICKS(1000));
-        ESP.restart();
-        return;
+        while(true);
     }
     log_i("ESP NOW INIT");
 
     // Once ESPNow is successfully Init, we will register for Send CB to get the status of Trasnmitted paket
-    esp_now_register_send_cb(onDataSent);
+    //esp_now_register_send_cb(onDataSent);
 
-    log_i("after esp_now_register_send_cb");
+    log_i("Setting mac address and adding peer");
 
-    if (!instance->addPeer())
-        return;
+    //Set peer address
+    if(!instance->addr(instance->broadcastAddress)){
+        log_e("Error setting address");
+        while(true);
+    }
+    //Set peer Interface
+    if(!instance->setInterface(WIFI_IF_STA)){
+        log_e("Error setting interface");
+        while(true);
+    }
+    if (!instance->add()){
+        log_e("Error adding peer");
+        while(true);
+    }
 
     //  Register for a callback function that will be called when data is received
-    esp_now_register_recv_cb(onDataRecv);
+     
+    esp_now_rate_config_t cfg = {
+        .phymode    = WIFI_PHY_MODE_HT20,
+        .rate       = WIFI_PHY_RATE_MCS6_SGI,
+        .ersu       = false
+    };
 
-    log_i("after esp_now_register_recv_cb");
+    if(esp_now_set_peer_rate_config(instance->broadcastAddress, &cfg) != ESP_OK){
+        log_e("Error setting peer rate config");
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        //ESP.restart();
+        while(true);
+        return;
+    }
+
+    log_i("end of initialize");
 
     instance->sceneManager = sceneManager;
     instance->gameEntity = gameEntity;
@@ -167,22 +194,16 @@ void formatMacAddress(const uint8_t *macAddr, char *buffer, int maxLength)
 }
 
 // Callback when data is sent
-void NetworkManager::onDataSent(const uint8_t *mac_addr, esp_now_send_status_t status)
-{
-    char macStr[18];
-    formatMacAddress(mac_addr, macStr, 18);
-    /*Serial.print("Last Packet Sent to: ");
-    Serial.println(macStr);
-    Serial.print("Last Packet Send Status: ");
-    Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");*/
+void NetworkManager::_onSent(bool success){
+    Serial.println(success ? "Delivery Success" : "Delivery Fail");
 }
 
 // Callback when data is received
-void NetworkManager::onDataRecv(const esp_now_recv_info_t * info, const uint8_t *data, int data_len)
+void NetworkManager::_onReceive(const uint8_t * data, size_t len)
 {
     Message receive_Data;
     memcpy(&receive_Data, data, sizeof(receive_Data));
-    // Serial.printf("\nReceive Data - bytes received: %i\n", data_len);
+    //Serial.printf("\nReceive Data - bytes received: %i\n", len);
     switch (receive_Data.messageType)
     {
     case POSITION:
@@ -228,58 +249,4 @@ void NetworkManager::onDataRecv(const esp_now_recv_info_t * info, const uint8_t 
     }
     break;
     }
-}
-
-bool NetworkManager::addPeer()
-{
-    peerInfo = {};
-
-    memcpy(&peerInfo.peer_addr, broadcastAddress, 6);
-    //log_i(broadcastAddress);
-    if (!esp_now_is_peer_exist(broadcastAddress))
-    {
-        return checkResult(esp_now_add_peer(&peerInfo), "Pair Success!!");
-    }
-
-    return true;
-}
-
-bool NetworkManager::checkResult(esp_err_t addStatus, String success_message)
-{
-    if (addStatus == ESP_OK)
-    {
-        // Serial.println(success_message);
-    }
-    else if (addStatus == ESP_ERR_ESPNOW_NOT_INIT)
-    {
-        Serial.println("ESPNOW Not Init");
-        return false;
-    }
-    else if (addStatus == ESP_ERR_ESPNOW_ARG)
-    {
-        Serial.println("Invalid Argument");
-        return false;
-    }
-    else if (addStatus == ESP_ERR_ESPNOW_FULL)
-    {
-        Serial.println("Peer list full");
-        return false;
-    }
-    else if (addStatus == ESP_ERR_ESPNOW_NO_MEM)
-    {
-        Serial.println("Out of memory");
-        return false;
-    }
-    else if (addStatus == ESP_ERR_ESPNOW_EXIST)
-    {
-        Serial.println("Peer Exists");
-        return false;
-    }
-    else
-    {
-        Serial.println("Not sure what happened");
-        return false;
-    }
-
-    return true;
 }
