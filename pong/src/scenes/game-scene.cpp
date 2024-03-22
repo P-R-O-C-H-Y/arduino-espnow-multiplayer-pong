@@ -210,7 +210,9 @@ void GameScene::drawBall()
     display->fillCircle(ballX, ballY, ballR, ST7789_WHITE);
     //log_e("paddleLastX: %d, paddleX: %d", ballLastX, ballX);
     //log_e("paddleLastY: %d, paddleY: %d", ballLastY, ballY);
-    // gameEntities->getBall()->setLastPosition(ballX, ballY);
+    if(NetworkManager::getInstance()->isSlave()) {
+        gameEntities->getBall()->setLastPosition(ballX, ballY);
+    }
 }
 
 void GameScene::drawPaddle(Paddle *paddle)

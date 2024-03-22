@@ -40,8 +40,8 @@ bool Entity::preparePositionMessage(PositionMessage *positionMessage)
 
     positionMessage->positionX = getPositionX();
     positionMessage->positionY = getPositionY();
-    positionMessage->lastPositionX = lastPositionX;
-    positionMessage->lastPositionY = lastPositionY;
+    //positionMessage->lastPositionX = lastPositionX;
+    //positionMessage->lastPositionY = lastPositionY;
 
     return true;
 }

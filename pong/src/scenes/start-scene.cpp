@@ -1,4 +1,5 @@
 #include "start-scene.h"
+#include "images.cpp"
 #include <Arduino.h>
 
 static const unsigned char PROGMEM PONG[] = {
@@ -103,11 +104,15 @@ StartScene::~StartScene()
 void StartScene::render()
 {
     display->fillScreen(ST7789_BLACK);
-    display->drawXBitmap(80, 90, IMG, 64, 64, ST7789_WHITE);
+
+    display->drawXBitmap(40, 20, espressif_logo_icon, 42, 42, ST7789_RED);
+    display->drawXBitmap(40+42+20, 26, espressif_logo_name, 179, 30, ST7789_WHITE);
+
+    display->drawXBitmap(80, 110, IMG, 64, 64, ST7789_WHITE);
     
     display->setTextSize(2); // Draw 2X-scale text
     display->setTextColor(ST7789_WHITE);
-    display->setCursor(154, 118);
+    display->setCursor(154, 138);
     display->println(F("START!"));
 
 

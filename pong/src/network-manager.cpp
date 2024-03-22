@@ -12,13 +12,15 @@ NetworkManager *NetworkManager::instance = nullptr;
 NetworkManager::NetworkManager() : ESP_NOW_Peer(nullptr), initialized(false)
 {
     // ESP32 in Station Mode
-    WiFi.mode(WIFI_STA);
-    uint64_t mac = ESP.getEfuseMac();
     uint8_t macArray[6];
-    for (int i = 0; i < 6; i++)
-    {
-        macArray[5-i] = (mac >> ((5 - i) * 8)) & 0xFF;
-    }
+
+#ifndef USE_WIFI_AP
+    WiFi.mode(WIFI_STA);
+    Wifi.macAddress(macArray);
+#else
+    WiFi.mode(WIFI_AP);
+    WiFi.softAPmacAddress(macArray);
+#endif
 
     if (memcmp(macArray, L_MAC_1, 6) == 0)
     {
@@ -40,7 +42,11 @@ NetworkManager::NetworkManager() : ESP_NOW_Peer(nullptr), initialized(false)
     }
 
     Serial.print("MAC Address: ");
+#ifdef USE_WIFI_AP
+    Serial.println(WiFi.softAPmacAddress());
+#else
     Serial.println(WiFi.macAddress());
+#endif
     WiFi.disconnect();
 }
 
@@ -109,7 +115,7 @@ void NetworkManager::startCommunication()
             }
         }
 
-        vTaskDelay(pdMS_TO_TICKS(4));
+        vTaskDelay(pdMS_TO_TICKS(5));
     }
 }
 
@@ -155,10 +161,18 @@ void NetworkManager::initialize(GameEntity *gameEntity, SceneManager *sceneManag
         while(true);
     }
     //Set peer Interface
+    //if(!instance->setInterface(WIFI_IF_STA)){
+#ifdef USE_WIFI_AP
+    if(!instance->setInterface(WIFI_IF_AP)){
+        log_e("Error setting interface");
+        while(true);
+    }
+#else
     if(!instance->setInterface(WIFI_IF_STA)){
         log_e("Error setting interface");
         while(true);
     }
+#endif
     if (!instance->add()){
         log_e("Error adding peer");
         while(true);
@@ -212,13 +226,13 @@ void NetworkManager::_onReceive(const uint8_t * data, size_t len)
         memcpy(&pm, data, sizeof(pm));
         unsigned int x = pm.positionX;
         unsigned int y = pm.positionY;
-        unsigned int lastx = pm.lastPositionX;
-        unsigned int lasty = pm.lastPositionY;
+        //unsigned int lastx = pm.lastPositionX;
+        //unsigned int lasty = pm.lastPositionY;
         //Serial.printf("Receive Data - entityType: [POSITION]\n positionX: %i\n positionY: %i\n lastPositionX: %i\n lastPositionY: %i\n", x, y, lastx, lasty);
         if (pm.enityType == BALL)
         {
             instance->gameEntity->getBall()->setPosition(x, y);
-            instance->gameEntity->getBall()->setLastPosition(lastx, lasty);
+            //instance->gameEntity->getBall()->setLastPosition(lastx, lasty);
         }
         else
         {
